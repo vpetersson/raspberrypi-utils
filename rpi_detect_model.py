@@ -50,22 +50,24 @@ class ModelInfo(object):
     ram_mb = 0
     vendor = ''
     info = ''
+    serial = ''
 
     def __init__(self, rev_hex=None):
         if not rev_hex:
             with open("/proc/cpuinfo") as f:
                 cpuinfo = f.read()
             rev_hex = re.search(r"(?<=\nRevision)[ |:|\t]*(\w+)", cpuinfo).group(1)
+            self.serial = re.search(r"(?<=\nSerial)[ |:|\t]*(\w+)", cpuinfo).group(1)
 
         self.revision_hex = rev_hex[-4:] if rev_hex[:4] == "1000" else rev_hex
         self.model, self.revision, self.ram_mb, self.vendor, self.info = model_data[rev_hex.strip("0")]
 
     def as_json(self):
-        s = {'model': self.model, 'revision': self.revision, 'ram': self.ram_mb, 'vendor': self.vendor}
+        s = {'model': self.model, 'revision': self.revision, 'ram': self.ram_mb, 'vendor': self.vendor, 'serial': self.serial}
         return s
 
     def __repr__(self):
-        s = "%s: Model %s, Revision %s, RAM: %s MB, Maker: %s%s" % (self.revision_hex, self.model, self.revision, self.ram_mb, self.vendor, ", %s" % self.info if self.info else "")
+        s = "%s: Serial: %s, Model %s, Revision %s, RAM: %s MB, Maker: %s%s" % (self.revision_hex, self.serial, self.model, self.revision, self.ram_mb, self.vendor, ", %s" % self.info if self.info else "")
         return s
 
 
